@@ -9,5 +9,5 @@ There are some comments in the script to help you modify how the output file loo
 Currently has some useless imports but eh
 
 ### sticker-scrape.py
-Downloads stickers from some PJSK fan website.  
+Downloads stickers (stamps) from some PJSK fan website.  
 Only downloads the ones with characters
