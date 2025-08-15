@@ -7,3 +7,7 @@ Scans spotify data (no way).
 You have to download your data through Spotify account settings, unzip it, and put the script inside the unzipped folder. It will go through your favorite songs and put them in a sorted easy to read list (playlists and automatic metadata assigning to your downloaded songs coming soon)  
 There are some comments in the script to help you modify how the output file looks  
 Currently has some useless imports but eh
+
+### sticker-scrape.py
+Downloads stickers from some PJSK fan website.  
+Only downloads the ones with characters
