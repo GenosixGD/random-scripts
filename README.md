@@ -7,4 +7,4 @@ WIP, do not use
 
 ### sticker-scrape.py
 Downloads stickers (stamps) from some PJSK fan website.  
-Only downloads the ones with characters
+Only downloads the ones with characters, might take a while
