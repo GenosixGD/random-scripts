@@ -9,16 +9,16 @@ import rich
 from rich import print
 
 # Switch this to 1 to get notified of everything useless
-debug = 0
+debug = 1
 
 print("start")
 totalstartTime = time.time()
 
 path = os.path.dirname(os.path.abspath(__file__))
-libpath = os.path.join(path, "YourLibrary.json")
+libpath = os.path.join(path, "Spotify Account Data/YourLibrary.json")
 
 file_open = os.open(libpath, os.O_RDWR)
-file = os.read(file_open, 8100000000)
+file = os.read(file_open, 81000000)
 fulllist = json.loads(file)
 
 os.close(file_open)
