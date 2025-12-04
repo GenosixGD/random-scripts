@@ -1,6 +1,7 @@
 import os
 import shutil
 import zipfile
+import csv
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -65,8 +66,6 @@ def googleSheetGet():
     if not (row[0] == ""):
       doneList.append({"address": row[0], "controller": row[1], "houses": row[2], "ready": row[3], "printed": row[4], "fileName": row[5], "allHouses": row[6]})
 
-### googleSheetGet()
-
 TEMPLATEpath = join(path, 'workfiles/#Шаблон Претензия в УК по МНО.odt')
 ZIPpath = join(path, 'Generated/.Шаблон.zip')
 DIRpath = join (path, 'Generated/.extracted/')
@@ -77,14 +76,22 @@ def unpackZip():
       zip_ref.extractall(DIRpath)
 
 CONTENTpath = join(path, 'Generated/.extracted/content.xml')
+adressesCSV = join(path, 'workfiles/Сортированные адреса.csv')
+placesCSV = join(path, 'workfiles/Реестр площадок.csv')
+adressesLIST = []
+placesLIST = []
 
-# Read in the file
-with open(CONTENTpath, 'r') as CONTENT:
-  CONTENTdata = CONTENT.read()
+with open (adressesCSV) as adressesFILE:
+    for row in csv.reader(adressesFILE, delimiter = '|'):
+        adressesLIST.append(row)
 
-# Replace the target string
-CONTENTdata = CONTENTdata.replace('[#ИНН]', INN)
+with open (placesCSV) as placesFILE:
+    for row in csv.reader(placesFILE, delimiter = '|'):
+        placesLIST.append(row)
 
-# Write the file out again
-with open(CONTENTpath, 'w') as CONTENT:
-  CONTENT.write(CONTENTdata)
+cur = 200
+
+item = placesLIST[cur]
+adress = ((item[1].split('. '))[1] + ', д. ' + item[2])
+
+print(adress)
