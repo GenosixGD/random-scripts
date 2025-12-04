@@ -17,3 +17,17 @@ with open (contentCSV) as contentFILE:
     contentREADER = csv.reader(contentFILE, delimiter = '|')
     for row in contentREADER:
         contentLIST.append(row)
+
+filteredLIST = []
+
+for item in contentLIST:
+    if item[0] in filterLIST:
+        if 'г. Ульяновск' in item[3]:
+            filteredLIST.append(item)
+
+filteredCSV = join(path, 'Generated/filtered.csv')
+
+with open (filteredCSV, 'w') as filteredFILE:
+    filteredWRITER = csv.writer(filteredFILE, delimiter = '|', quoting = csv.QUOTE_ALL, quotechar = '\'')
+    for row in filteredLIST:
+        filteredWRITER.writerow(row)

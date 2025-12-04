@@ -38,9 +38,7 @@ def googleSheetGet():
     if creds and creds.expired and creds.refresh_token:
       creds.refresh(Request())
     else:
-      flow = InstalledAppFlow.from_client_secrets_file(
-          credsf, Scopes
-      )
+      flow = InstalledAppFlow.from_client_secrets_file(credsf, Scopes)
       creds = flow.run_local_server(port=0)
 
     # Save the credentials for the next run
@@ -51,8 +49,7 @@ def googleSheetGet():
   try:
     service = build("sheets", "v4", credentials=creds)
   except HttpError as err:
-    print(err)
-    exit(2)
+    exit(err)
 
   # Call the Sheets API
 
