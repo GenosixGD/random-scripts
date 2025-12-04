@@ -1,5 +1,4 @@
 import os
-import relatorio
 import csv
 import shutil
 import zipfile
