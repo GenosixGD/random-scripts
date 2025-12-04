@@ -16,4 +16,4 @@ with open (filterCSV) as filterFILE:
 with open (contentCSV) as contentFILE:
     contentREADER = csv.reader(contentFILE, delimiter = '|')
     for row in contentREADER:
-        contentLIST.append(row[0])
+        contentLIST.append(row)
