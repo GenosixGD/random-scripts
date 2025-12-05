@@ -1,102 +1,36 @@
-import os
-import shutil
-import zipfile
-import csv
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from os.path import join
+from defn import *
 
-# If modifying these scopes, delete the file token.json.
-Scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-
-# The ID and range of a sample spreadsheet.
-SpreadSheetID = "17r_g5ROMUXcHUhdpB508hFZyXpOXV5UC8UYglVHeNsQ"
-Range = "A2:G"
-
-path = os.path.dirname(__file__)
-tokenf = os.path.join (path, "token.json")
-credsf = os.path.join (path, "credentials.json")
-doneList = []
-
-def googleSheetGet():
-
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-
-    if os.path.exists(tokenf):
-        creds = Credentials.from_authorized_user_file(tokenf, Scopes)
-
-    # If there are no (valid) credentials available, let the user log in.
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(credsf, Scopes)
-            creds = flow.run_local_server(port=0)
-
-        # Save the credentials for the next run
-
-        with open(tokenf, "w") as token:
-            token.write(creds.to_json())
-
-        try:
-            service = build("sheets", "v4", credentials=creds)
-        except HttpError as err:
-            exit(err)
-
-        # Call the Sheets API
-
-        sheet = service.spreadsheets()
-        result = (
-            sheet.values()
-            .get(spreadsheetId=SpreadSheetID, range=Range)
-            .execute()
-        )
-        values = result.get("values", [])
-
-        for row in values:
-            if row[0] != "":
-                doneList.append({"address": row[0], "controller": row[1], "houses": row[2], "ready": row[3], "printed": row[4], "fileName": row[5], "allHouses": row[6]})
-
-TEMPLATEpath = join(path, 'workfiles/#Шаблон Претензия в УК по МНО.odt')
-ZIPpath = join(path, 'Generated/.Шаблон.zip')
-DIRpath = join (path, 'Generated/.extracted/')
-
-def unpackZip():
-    shutil.copy2(TEMPLATEpath, ZIPpath)
-    with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
-        zip_ref.extractall(DIRpath)
-
-CONTENTpath = join(path, 'Generated/.extracted/content.xml')
-adressesCSV = join(path, 'workfiles/Сортированные адреса.csv')
-placesCSV = join(path, 'workfiles/Реестр площадок.csv')
-adressesLIST = []
-placesLIST = []
-rejectedPlacesLIST = []
-
-with open (adressesCSV) as adressesFILE:    
-    for row in csv.reader(adressesFILE, delimiter = '|'):
-        adressesLIST.append(row)
-
-with open (placesCSV) as placesFILE:
-    for row in csv.reader(placesFILE, delimiter = '|'):
-        placesLIST.append(row)
+openFiles()
 
 cur = 0
-adressLIST = []
 
 for item in placesLIST:
     spl = (item[1].split('. '))
     if (len(spl) != 2) or ('п.' in spl[0]) or ('(' in spl[1]) or (item[2] == ''):
         adressRejectLIST.append(item)
     elif (spl[0] == 'пер') or ('ул' in spl[0]):
-        adress = (item[1] + ', д. ' + item[2])
+        if item[0] == 'Ульяновск':
+            adress = ('Ульяновская обл, г. Ульяновск, ' + item[1] + ', д. ' + item[2])
+        else:
+            adress = ('Ульяновская обл, г. Ульяновск, ' + item[0] + ', ' + item[1] + ', д. ' + item[2])
         adressLIST.append(adress)
+        adressFullLIST.append(item)
 
-print (adressLIST)
+for item in adressLIST:
+    cur = 0
+    while stop != True:
+        if item in (adressesLIST[cur])[0]:
+            curAdress = adressesLIST[cur]
+            stop = True
+        else:
+            cur = cur + 1
+    cur2 = 0
+    stop = False
+    while stop == False:
+        if curAdress[1] in (conrollersLIST[cur2])[0]:
+            curController = []
+            curController.append(controllerLIST[1], controllerLIST[2], controllerLIST[3], controllerLIST[4])
+            stop = True
+        else:
+            cur2 = cur2 + 1
