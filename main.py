@@ -24,64 +24,63 @@ doneList = []
 
 def googleSheetGet():
 
-  creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
 
-  # The file token.json stores the user's access and refresh tokens, and is
-  # created automatically when the authorization flow completes for the first
-  # time.
+    if os.path.exists(tokenf):
+        creds = Credentials.from_authorized_user_file(tokenf, Scopes)
 
-  if os.path.exists(tokenf):
-    creds = Credentials.from_authorized_user_file(tokenf, Scopes)
+    # If there are no (valid) credentials available, let the user log in.
 
-  # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(credsf, Scopes)
+            creds = flow.run_local_server(port=0)
 
-  if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-      creds.refresh(Request())
-    else:
-      flow = InstalledAppFlow.from_client_secrets_file(credsf, Scopes)
-      creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
 
-    # Save the credentials for the next run
+        with open(tokenf, "w") as token:
+            token.write(creds.to_json())
 
-    with open(tokenf, "w") as token:
-      token.write(creds.to_json())
+        try:
+            service = build("sheets", "v4", credentials=creds)
+        except HttpError as err:
+            exit(err)
 
-  try:
-    service = build("sheets", "v4", credentials=creds)
-  except HttpError as err:
-    exit(err)
+        # Call the Sheets API
 
-  # Call the Sheets API
+        sheet = service.spreadsheets()
+        result = (
+            sheet.values()
+            .get(spreadsheetId=SpreadSheetID, range=Range)
+            .execute()
+        )
+        values = result.get("values", [])
 
-  sheet = service.spreadsheets()
-  result = (
-      sheet.values()
-      .get(spreadsheetId=SpreadSheetID, range=Range)
-      .execute()
-  )
-  values = result.get("values", [])
-
-  for row in values:
-    if not (row[0] == ""):
-      doneList.append({"address": row[0], "controller": row[1], "houses": row[2], "ready": row[3], "printed": row[4], "fileName": row[5], "allHouses": row[6]})
+        for row in values:
+            if row[0] != "":
+                doneList.append({"address": row[0], "controller": row[1], "houses": row[2], "ready": row[3], "printed": row[4], "fileName": row[5], "allHouses": row[6]})
 
 TEMPLATEpath = join(path, 'workfiles/#Шаблон Претензия в УК по МНО.odt')
 ZIPpath = join(path, 'Generated/.Шаблон.zip')
 DIRpath = join (path, 'Generated/.extracted/')
 
 def unpackZip():
-  shutil.copy2(TEMPLATEpath, ZIPpath)
-  with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
-      zip_ref.extractall(DIRpath)
+    shutil.copy2(TEMPLATEpath, ZIPpath)
+    with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
+        zip_ref.extractall(DIRpath)
 
 CONTENTpath = join(path, 'Generated/.extracted/content.xml')
 adressesCSV = join(path, 'workfiles/Сортированные адреса.csv')
 placesCSV = join(path, 'workfiles/Реестр площадок.csv')
 adressesLIST = []
 placesLIST = []
+rejectedPlacesLIST = []
 
-with open (adressesCSV) as adressesFILE:
+with open (adressesCSV) as adressesFILE:    
     for row in csv.reader(adressesFILE, delimiter = '|'):
         adressesLIST.append(row)
 
@@ -89,9 +88,15 @@ with open (placesCSV) as placesFILE:
     for row in csv.reader(placesFILE, delimiter = '|'):
         placesLIST.append(row)
 
-cur = 200
+cur = 0
+adressLIST = []
 
-item = placesLIST[cur]
-adress = ((item[1].split('. '))[1] + ', д. ' + item[2])
+for item in placesLIST:
+    spl = (item[1].split('. '))
+    if (len(spl) != 2) or ('п.' in spl[0]) or ('(' in spl[1]) or (item[2] == ''):
+        adressRejectLIST.append(item)
+    elif (spl[0] == 'пер') or ('ул' in spl[0]):
+        adress = (item[1] + ', д. ' + item[2])
+        adressLIST.append(adress)
 
-print(adress)
+print (adressLIST)
