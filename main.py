@@ -39,17 +39,18 @@ stop2 = False
 
 # Open files and make lists from them
     
+adressesLIST = []
 adressesCSV = join(path, 'workfiles/Сортированные адреса.csv')
 with open (adressesCSV) as adressesFILE:
-    adressesLIST = []
     for row in csv.reader(adressesFILE, delimiter = '|'):
         adressesLIST.append(row)
 
+placesLIST = []
 placesCSV = join(path, 'workfiles/Реестр площадок.csv')
 with open (placesCSV) as placesFILE:
-    placesLIST = []
     for row in csv.reader(placesFILE, delimiter = '|'):
         placesLIST.append(row)
+
 
 controllersCSV = join(path, 'Generated/УК Ульяновска.csv')
 with open (controllersCSV) as controllersFILE:
@@ -57,6 +58,7 @@ with open (controllersCSV) as controllersFILE:
     for row in csv.reader(controllersFILE, delimiter = '|', quotechar = '\''):
         controllersLIST.append(row)
 
+content = None
 contentXML = join(path, 'Generated/.extracted/content.xml')
 with open (contentXML) as contentFILE:
     content = (contentFILE.readlines())[1]
@@ -136,26 +138,29 @@ for item in placesLIST:
 for item in retrievedAdressesLIST:
     cur = 0
 
+    # get the adress entries from ГИС ЖКХ
     while stop == False:
         if item in (adressesLIST[cur])[0]:
             curAdress = adressesLIST[cur]
             stop = True
-            stop2 == True
         else:
             cur = cur + 1
             if cur == len(adressesLIST):
                 stop = True
-                stop2 = True
-    cur2 = 0
-    stop = False
-    if stop2 == False:
-        while stop == False:
-            if curAdress[1] in (conrollersLIST[cur2])[0]:
-                curController = []
-                curController.append(controllersLIST[1], controllersLIST[2], controllersLIST[3], controllersLIST[4])
-                stop = True
-            else:
-                cur2 = cur2 + 1
-        stop = False
 
-    
+    # Получить всю информацию об УК дома, к которому привязана площадка, из списка УК
+    cur2 = 0
+    while stop == False:
+        if curAdress[1] in (controllersLIST[cur2])[0]:
+            curController = []
+            curController = (controllersLIST[cur2])
+            stop = True
+        else:
+            cur2 = cur2 + 1
+            if cur2 > len(controllersLIST):
+                
+
+    stop = False
+
+    curList = {}
+    curList.append(curController[0])
