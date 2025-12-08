@@ -24,7 +24,7 @@ DIRpath = join (path, 'Generated/.extracted/')
 CONTENTpath = join(path, 'Generated/.extracted/content.xml')
 
 # Predefining lists
-adressLIST = []
+retrievedAdressesLIST = []
 adressFullLIST = []
 adressRejectLIST = []
 adressesLIST = []
@@ -44,6 +44,8 @@ credsf = os.path.join (path, "credentials.json")
 # Variables to work with data searching
 cur = 0
 stop = False
+fullStop = False
+curAdress = None
 
 # Functions
 ## Open files and make lists from them
