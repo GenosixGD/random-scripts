@@ -46,7 +46,9 @@ cur = 0
 stop = False
 
 # Functions
+## Open files and make lists from them
 def openFiles():
+    
     with open (adressesCSV) as adressesFILE:    
         for row in csv.reader(adressesFILE, delimiter = '|'):
             adressesLIST.append(row)
@@ -58,6 +60,7 @@ def openFiles():
     with open (controllersCSV) as controllersFILE:
         for row in csv.reader(controllersFILE, delimiter = '|', quotechar = '\''):
             controllersLIST.append(row)
+## Получить таблицу претензий
 def googleSheetGet():
 
     creds = None
@@ -101,7 +104,9 @@ def googleSheetGet():
         for row in values:
             if row[0] != "":
                 doneList.append({"address": row[0], "controller": row[1], "houses": row[2], "ready": row[3], "printed": row[4], "fileName": row[5], "allHouses": row[6]})
+## Unpack the template to work with it's contents
 def unpackZip():
-    shutil.copy2(TEMPLATEpath, ZIPpath)
+    
+    # shutil.copy2(TEMPLATEpath, ZIPpath)
     with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
         zip_ref.extractall(DIRpath)

@@ -2,7 +2,7 @@
 from defn import *
 
 openFiles()
-
+unpackZip()
 cur = 0
 
 for item in placesLIST:
@@ -34,3 +34,5 @@ for item in adressLIST:
             stop = True
         else:
             cur2 = cur2 + 1
+
+print (curController)
