@@ -34,5 +34,7 @@ for item in adressLIST:
             stop = True
         else:
             cur2 = cur2 + 1
+    if cur > adressLIST:
+        stop == True
 
 print (curController)
