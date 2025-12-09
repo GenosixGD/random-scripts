@@ -22,6 +22,7 @@ adressFullLIST = []
 adressRejectLIST = []
 rejectedPlacesLIST = []
 doneList = []
+notFoundAdressesLIST = []
 
 # Variables to work with Google Sheets API
 ## If modifying these scopes, delete the file token.json.
@@ -112,15 +113,6 @@ def googleSheetGet():
 with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
     zip_ref.extractall(DIRpath)
 
-
-
-
-
-
-
-
-
-
 # Compare and copy adresses with the ГИС ЖКХ registry
 for item in placesLIST:
     spl = (item[1].split('. '))
@@ -134,33 +126,87 @@ for item in placesLIST:
         retrievedAdressesLIST.append(adress)
         adressFullLIST.append(item)
 
+#for item in adressFullLIST:
+    #print(item)
+
 # The actual list is being made now
-for item in retrievedAdressesLIST:
+for count, item in enumerate(retrievedAdressesLIST):
     cur = 0
 
+    stop = False
     # get the adress entries from ГИС ЖКХ
     while stop == False:
-        if item in (adressesLIST[cur])[0]:
+        if item in ((adressesLIST[cur])[0]):
             curAdress = adressesLIST[cur]
             stop = True
+            fullStop = False
         else:
             cur = cur + 1
             if cur == len(adressesLIST):
                 stop = True
+                notFoundAdressesLIST.append(item)
+                fullStop = True
 
     # Получить всю информацию об УК дома, к которому привязана площадка, из списка УК
     cur2 = 0
-    while stop == False:
-        if curAdress[1] in (controllersLIST[cur2])[0]:
-            curController = []
-            curController = (controllersLIST[cur2])
-            stop = True
-        else:
-            cur2 = cur2 + 1
-            if cur2 > len(controllersLIST):
-                
-
     stop = False
+    if fullStop != True:
+        while stop == False:
+            if not (curAdress in notFoundAdressesLIST):
+                if curAdress[1] in (controllersLIST[cur2])[0]:
+                    curController = []
+                    curController = (controllersLIST[cur2])
+                    stop = True
+                else:
+                    cur2 = cur2 + 1
+                    if cur2 == len(controllersLIST):
+                        stop = True
+            else:
+                stop = True
 
-    curList = {}
-    curList.append(curController[0])
+        curGarbageAreaList = {}
+        curGarbageAreaList.update({curController[0]: [item.replace('Ульяновская обл, г. Ульяновск, ', '')]})
+
+    # Разобрать список остальных домов площадки на читаемый список
+    fullStop = False
+    stop = False
+    curAdresses = (adressFullLIST[count])[4]
+    curAdressesStrip = [item.strip() for item in curAdresses.split(',')]
+    curAdressesWithEmpties = []
+    for item in curAdressesStrip:
+        if 'дом' in item:
+            item2 = (item.split(" "))[1]
+            curAdressesWithEmpties.append(item2.strip())
+        elif 'д. ' in item:
+            item2 = (item.split(". "))[1]
+            curAdressesWithEmpties.append(item2.strip())
+        else:
+            curAdressesWithEmpties.append(item.strip())
+    for item in curAdressesWithEmpties:
+        if item == '':
+            curAdressesWithEmpties.remove(item)
+    
+    # Сделать машиночитаемый список из полученного выше списка
+    print (curAdressesWithEmpties)
+    curAdressesReady = []
+    for item in curAdressesWithEmpties:
+        curStreet = {}
+        houses = []
+        curGarbArea = []
+        counter = 0
+        rember = None
+        for subitem in item:
+            for supersubitem in list(subitem):
+                if supersubitem.isdigit == False:
+                    counter += 1
+            if counter >= 3:
+                curStreet.update({'street': subitem})
+            elif counter < 3:
+                if rember != curStreet:
+                    curStreet.update({'houses': houses})
+                    curGarbArea.append(curStreet)
+                    houses = []
+                houses.append(subitem)
+                rember = curStreet
+        curGarbAreaReady = []
+        print (curGarbArea)
