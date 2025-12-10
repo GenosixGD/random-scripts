@@ -185,9 +185,8 @@ for count, item in enumerate(retrievedAdressesLIST):
     for item in curAdressesWithEmpties:
         if item == '':
             curAdressesWithEmpties.remove(item)
-    
+
     # Сделать машиночитаемый список из полученного выше списка
-    print (curAdressesWithEmpties)
     curAdressesReady = []
     for item in curAdressesWithEmpties:
         curStreet = {}
