@@ -188,24 +188,24 @@ for count, item in enumerate(retrievedAdressesLIST):
 
     # Сделать машиночитаемый список из полученного выше списка
     curAdressesReady = []
-    for item in curAdressesWithEmpties:
+    for item3 in curAdressesWithEmpties[count]:
         curStreet = {}
         houses = []
         curGarbArea = []
         counter = 0
         rember = None
-        for subitem in item:
-            for supersubitem in list(subitem):
-                if supersubitem.isdigit == False:
-                    counter += 1
+        for subitem in item3:
+            if subitem.isdigit == False:
+                counter += 1
             if counter >= 3:
                 curStreet.update({'street': subitem})
             elif counter < 3:
-                if rember != curStreet:
+                if rember == None:
+                    pass
+                elif rember != curStreet:
                     curStreet.update({'houses': houses})
                     curGarbArea.append(curStreet)
                     houses = []
                 houses.append(subitem)
                 rember = curStreet
         curGarbAreaReady = []
-        print (curGarbArea)
