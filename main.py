@@ -172,40 +172,45 @@ for count, item in enumerate(retrievedAdressesLIST):
     stop = False
     curAdresses = (adressFullLIST[count])[4]
     curAdressesStrip = [item.strip() for item in curAdresses.split(',')]
-    curAdressesWithEmpties = []
+    curAdressesCleaned = []
     for item in curAdressesStrip:
         if 'дом' in item:
             item2 = (item.split(" "))[1]
-            curAdressesWithEmpties.append(item2.strip())
+            curAdressesCleaned.append(item2.strip())
         elif 'д. ' in item:
             item2 = (item.split(". "))[1]
-            curAdressesWithEmpties.append(item2.strip())
+            curAdressesCleaned.append(item2.strip())
         else:
-            curAdressesWithEmpties.append(item.strip())
-    for item in curAdressesWithEmpties:
+            curAdressesCleaned.append(item.strip())
+    for item in curAdressesCleaned:
         if item == '':
-            curAdressesWithEmpties.remove(item)
+            curAdressesCleaned.remove(item)
 
     # Сделать машиночитаемый список из полученного выше списка
+    curStreet = {}
+    houses = []
+    curGarbArea = []
     curAdressesReady = []
-    for item3 in curAdressesWithEmpties[count]:
-        curStreet = {}
-        houses = []
-        curGarbArea = []
+    rember = None
+    for item3 in curAdressesCleaned:
         counter = 0
-        rember = None
         for subitem in item3:
-            if subitem.isdigit == False:
+            #print (subitem.isdigit)
+            if subitem.isdigit() == False:
                 counter += 1
-            if counter >= 3:
-                curStreet.update({'street': subitem})
-            elif counter < 3:
-                if rember == None:
-                    pass
-                elif rember != curStreet:
-                    curStreet.update({'houses': houses})
-                    curGarbArea.append(curStreet)
-                    houses = []
-                houses.append(subitem)
-                rember = curStreet
-        curGarbAreaReady = []
+            else:
+                pass
+        if counter > 2:
+            curStreet.update({'street': item3})
+        elif counter <= 2:
+            if rember == None:
+                pass
+            elif rember != curStreet:
+                curStreet.update({'houses': houses})
+                print (curStreet)
+                curGarbArea.append(curStreet)
+                houses = []
+            houses.append(subitem)
+            rember = curStreet
+            print (curStreet)
+    curGarbAreaReady = []
