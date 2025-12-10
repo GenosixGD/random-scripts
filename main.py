@@ -21,7 +21,6 @@ retrievedAdressesLIST = []
 adressFullLIST = []
 adressRejectLIST = []
 rejectedPlacesLIST = []
-doneList = []
 notFoundAdressesLIST = []
 
 # Variables to work with Google Sheets API
@@ -67,6 +66,7 @@ with open (contentXML) as contentFILE:
 ## Получить таблицу претензий
 def googleSheetGet():
 
+    doneList = []
     creds = None
 
     # The file token.json stores the user's access and refresh tokens, and is
@@ -125,14 +125,13 @@ for item in placesLIST:
             adress = ('Ульяновская обл, г. Ульяновск, ' + item[0] + ', ' + item[1] + ', д. ' + item[2])
         retrievedAdressesLIST.append(adress)
         adressFullLIST.append(item)
-
-#for item in adressFullLIST:
-    #print(item)
+    else:
+        adressRejectLIST.append(item)
 
 # The actual list is being made now
 for count, item in enumerate(retrievedAdressesLIST):
+    
     cur = 0
-
     stop = False
     # get the adress entries from ГИС ЖКХ
     while stop == False:
@@ -186,31 +185,44 @@ for count, item in enumerate(retrievedAdressesLIST):
         if item == '':
             curAdressesCleaned.remove(item)
 
-    # Сделать машиночитаемый список из полученного выше списка
+    # Список домов по адресам в более удобном формате
     curStreet = {}
     houses = []
     curGarbArea = []
     curAdressesReady = []
     rember = None
+    overstreet = None
     for item3 in curAdressesCleaned:
         counter = 0
         for subitem in item3:
-            #print (subitem.isdigit)
             if subitem.isdigit() == False:
                 counter += 1
-            else:
-                pass
+        if counter <= 2:
+            houses.append(item3)
         if counter > 2:
-            curStreet.update({'street': item3})
-        elif counter <= 2:
-            if rember == None:
-                pass
-            elif rember != curStreet:
-                curStreet.update({'houses': houses})
-                print (curStreet)
-                curGarbArea.append(curStreet)
-                houses = []
-            houses.append(subitem)
-            rember = curStreet
-            print (curStreet)
-    curGarbAreaReady = []
+            if ('п.' in item3) or ('д.' in item3) or ('пос.' in item3):
+                overstreet = item3
+            else:
+                if houses == []:
+                    pass
+                else:
+                    if overstreet == None:
+                        street = item3
+                    else:
+                        street = (overstreet + ', ' + item3)
+                    curGarbArea.append([street, houses])
+                    houses = []
+                
+    if (adressFullLIST[count][1] == '') and (curGarbArea == []):
+        itemCorrupt = True
+    else:
+        if adressFullLIST[count][0] == 'Ульяновск':
+            garbAdressSearch = ('Ульяновская обл, г. Ульяновск, ' + adressFullLIST[count][1] + ', д. ' + adressFullLIST[count][2])
+        else:
+            garbAdressSearch = ('Ульяновская обл, г. Ульяновск, ' + adressFullLIST[count][0] + ', ' + adressFullLIST[count][1] + ', д. ' + adressFullLIST[count][2])
+        garbAdress = (adressFullLIST[count][1] + ', ' + adressFullLIST[count][2])
+        garbArea = []
+        garbAreaSearch = []
+        for item in curGarbArea:
+            for subitem in item[1]:
+                garbAreaSearch = ()
