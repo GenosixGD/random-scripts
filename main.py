@@ -109,31 +109,39 @@ def googleSheetGet():
             if row[0] != "":
                 doneList.append({"address": row[0], "controller": row[1], "houses": row[2], "ready": row[3], "printed": row[4], "fileName": row[5], "allHouses": row[6]})
 
-# Unpack the template to work with it's contents
-with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
-    zip_ref.extractall(DIRpath)
+def unpack():
+    # Unpack the template to work with it's contents
+    with zipfile.ZipFile(ZIPpath, 'r') as zip_ref:
+        zip_ref.extractall(DIRpath)
 
 # Compare and copy adresses with the ГИС ЖКХ registry
 for item in placesLIST:
+    print (item)
     spl = (item[1].split('. '))
     if (len(spl) != 2) or ('п.' in spl[0]) or ('(' in spl[1]) or (item[2] == ''):
         adressRejectLIST.append(item)
     elif (spl[0] == 'пер') or ('ул' in spl[0]):
         if item[0] == 'Ульяновск':
-            adress = ('Ульяновская обл, г. Ульяновск, ' + item[1] + ', д. ' + item[2])
+            retrievedAdressesLIST.append([item[1], item[2], item[3], item[4]])
         else:
-            adress = ('Ульяновская обл, г. Ульяновск, ' + item[0] + ', ' + item[1] + ', д. ' + item[2])
-        retrievedAdressesLIST.append(adress)
+            retrievedAdressesLIST.append([item[0], item[1], item[2], item[3], item[4]])
         adressFullLIST.append(item)
     else:
         adressRejectLIST.append(item)
 
 # The actual list is being made now
+notFoundAdressesLIST = []
+corruptAdresses = []
+curGarbageAreaList = {}
 for count, item in enumerate(retrievedAdressesLIST):
-    
+    print (count, item)
+
+    # get the adress entries from ГИС ЖКХ
     cur = 0
     stop = False
-    # get the adress entries from ГИС ЖКХ
+    fullStop = False
+    if len(item) > 4:
+        address = (item[0], + ', ' + item[1], + ', д. ' + item [2])
     while stop == False:
         if item in ((adressesLIST[cur])[0]):
             curAdress = adressesLIST[cur]
@@ -146,44 +154,18 @@ for count, item in enumerate(retrievedAdressesLIST):
                 notFoundAdressesLIST.append(item)
                 fullStop = True
 
-    # Получить всю информацию об УК дома, к которому привязана площадка, из списка УК
+    # Получить УК дома, к которому привязана площадка
     cur2 = 0
     stop = False
     if fullStop != True:
         while stop == False:
             if not (curAdress in notFoundAdressesLIST):
-                if curAdress[1] in (controllersLIST[cur2])[0]:
-                    curController = []
-                    curController = (controllersLIST[cur2])
-                    stop = True
-                else:
-                    cur2 = cur2 + 1
-                    if cur2 == len(controllersLIST):
-                        stop = True
+                strip = curAdress[0][39:]
+                split = strip.split(', д. ')
+                curGarbageAreaList = {curAdress[1]: {split[0]: [split[1]]}}
+                stop = True
             else:
                 stop = True
-
-        curGarbageAreaList = {}
-        curGarbageAreaList.update({curController[0]: [item.replace('Ульяновская обл, г. Ульяновск, ', '')]})
-
-    # Разобрать список остальных домов площадки на читаемый список
-    fullStop = False
-    stop = False
-    curAdresses = (adressFullLIST[count])[4]
-    curAdressesStrip = [item.strip() for item in curAdresses.split(',')]
-    curAdressesCleaned = []
-    for item in curAdressesStrip:
-        if 'дом' in item:
-            item2 = (item.split(" "))[1]
-            curAdressesCleaned.append(item2.strip())
-        elif 'д. ' in item:
-            item2 = (item.split(". "))[1]
-            curAdressesCleaned.append(item2.strip())
-        else:
-            curAdressesCleaned.append(item.strip())
-    for item in curAdressesCleaned:
-        if item == '':
-            curAdressesCleaned.remove(item)
 
     # Список домов по адресам в более удобном формате
     curStreet = {}
@@ -192,6 +174,8 @@ for count, item in enumerate(retrievedAdressesLIST):
     curAdressesReady = []
     rember = None
     overstreet = None
+    street = None
+    prevstreet = None
     for item3 in curAdressesCleaned:
         counter = 0
         for subitem in item3:
@@ -199,30 +183,57 @@ for count, item in enumerate(retrievedAdressesLIST):
                 counter += 1
         if counter <= 2:
             houses.append(item3)
-        if counter > 2:
+        else:
             if ('п.' in item3) or ('д.' in item3) or ('пос.' in item3):
                 overstreet = item3
-            else:
-                if houses == []:
-                    pass
-                else:
-                    if overstreet == None:
-                        street = item3
-                    else:
-                        street = (overstreet + ', ' + item3)
+                if street != None:
                     curGarbArea.append([street, houses])
-                    houses = []
+            else:
+                if overstreet == None:
+                    if street != None:
+                        prevstreet = street
+                    street = item3
+                else:
+                    street = (overstreet + ', ' + item3)
+                if prevstreet != None:
+                    curGarbArea.append([prevstreet, houses])
+                houses = []
                 
     if (adressFullLIST[count][1] == '') and (curGarbArea == []):
-        itemCorrupt = True
+        corruptAdresses.append(item)
     else:
         if adressFullLIST[count][0] == 'Ульяновск':
-            garbAdressSearch = ('Ульяновская обл, г. Ульяновск, ' + adressFullLIST[count][1] + ', д. ' + adressFullLIST[count][2])
+            garbAdressSearch = (adressFullLIST[count][1] + ', д. ' + adressFullLIST[count][2])
         else:
-            garbAdressSearch = ('Ульяновская обл, г. Ульяновск, ' + adressFullLIST[count][0] + ', ' + adressFullLIST[count][1] + ', д. ' + adressFullLIST[count][2])
+            garbAdressSearch = (adressFullLIST[count][0] + ', ' + adressFullLIST[count][1] + ', д. ' + adressFullLIST[count][2])
         garbAdress = (adressFullLIST[count][1] + ', ' + adressFullLIST[count][2])
         garbArea = []
         garbAreaSearch = []
         for item in curGarbArea:
             for subitem in item[1]:
-                garbAreaSearch = ()
+                garbAreaSearch = (item[0] + ', д. ' + subitem)
+                cur = 0
+                stop = False
+                fullStop = False
+                while stop == False:
+                    if garbAreaSearch in (adressesLIST[cur][0]):
+                        controller = adressesLIST[cur][1]
+                        if controller in curGarbageAreaList:
+                            curDict = curGarbageAreaList[controller]
+                        else:
+                            curDict = {}
+                        if item[0] in curDict:
+                            curDictStreet = curDict[item[0]]
+                        else:
+                            curDictStreet = []
+                        curDictStreet.append(subitem)
+                        curDict.update({item[0]: curDictStreet})
+                        curGarbageAreaList.update(curDict)
+                        stop = True
+                        fullStop = False
+                    else:
+                        cur = cur + 1
+                        if cur == len(adressesLIST):
+                            stop = True
+                            notFoundAdressesLIST.append(item)
+                            fullStop = True

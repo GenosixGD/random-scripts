@@ -2,6 +2,7 @@
 
 notFoundAdressesLIST
 adressRejectLIST
+corruptAdresses
 
 
 
@@ -11,3 +12,10 @@ curGarbArea
 adressFullLIST
 
 itemCorrupt
+
+
+
+
+Поиск в
+garbAdressSearch
+garbAreaSearch
