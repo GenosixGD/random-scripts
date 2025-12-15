@@ -10,7 +10,6 @@ corruptAdresses
 создание претензий
 
 curGarbArea
-adressFullLIST
 
 itemCorrupt
 

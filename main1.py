@@ -129,17 +129,30 @@ notFoundAdressesLIST = []
 corruptAdresses = []
 curGarbageAreaList = {}
 for count, item in enumerate(retrievedAdressesLIST):
+
     REJECT = False
-    
-    # Список домов по адресам в более удобном формате
     houses = []
     curGarbArea = []
     split = []
+    strip = []
     overstreet = None
     street = None
     prevstreet = None
 
+    split = item[4].split(', ')
     for subitem in split:
+        subitem.strip()
+        strip.append(subitem)
+    split = []
+    for subitem in strip:
+        if 'дома' in subitem:
+            subitem = subitem[5:]
+        elif 'дом' in subitem:
+            subitem = subitem[4:]
+        split.append(subitem)
+    strip = split
+
+    for subitem in strip:
         counter = 0
         for symbol in subitem:
             if symbol.isdigit() == False:
@@ -163,6 +176,7 @@ for count, item in enumerate(retrievedAdressesLIST):
                 if prevstreet != None:
                     curGarbArea.append([prevstreet, houses])
                 houses = []
+    
     if (item[1] == '') and (curGarbArea == []):
         corruptAdresses.append(item)
     else:
@@ -199,5 +213,6 @@ for count, item in enumerate(retrievedAdressesLIST):
                         cur = cur + 1
                         if cur == len(adressesLIST):
                             stop = True
-                            notFoundAdressesLIST.append(item4)
+                            notFoundAdressesLIST.append([item4, garbAreaSearch])
                             fullStop = True
+        
