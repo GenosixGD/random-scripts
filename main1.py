@@ -132,49 +132,12 @@ for count, item in enumerate(retrievedAdressesLIST):
     REJECT = False
     
     # Список домов по адресам в более удобном формате
-    curStreet = {}
     houses = []
     curGarbArea = []
-    curAdressesReady = []
     split = []
-    strip = []
-    anotherList = []
-    curList = []
-    prev = None
     overstreet = None
     street = None
     prevstreet = None
-    for subitem in item[4].split(', '):
-        split.append(subitem)
-    for subitem in split:
-        strip.append(subitem.strip())
-    for subitem in strip:
-        itemSplit = subitem.split(' ')
-        digit = False
-        for ssubitem in itemSplit:
-            if  (('ул.' in ssubitem) or ('пер.'  in ssubitem) or ('б-р'  in ssubitem) or ('п.'  in ssubitem) or ('д.'  in ssubitem) or ('пос.'  in ssubitem) or ('с.'  in ssubitem)):
-                prev = ssubitem
-            if subitem.isdigit:
-                digit = True
-                curList.append(ssubitem)
-            if (ssubitem == 'дома') or (ssubitem == 'дом'):
-                pass
-            else:
-                print (prev)
-                if prev != None:
-                    curList.append((prev + ' ' + ssubitem))
-                    prev = None
-                    print (curList)
-                else:
-                    curList = (curList + ssubitem)
-        if REJECT == True:
-            break
-        anotherList.append(curList)
-    if REJECT == True:
-        continue
-    #print (anotherList)
-
-
 
     for subitem in split:
         counter = 0
