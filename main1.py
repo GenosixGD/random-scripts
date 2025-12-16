@@ -164,6 +164,7 @@ for count, item in enumerate(retrievedAdressesLIST):
                 overstreet = subitem.strip()
                 if street != None:
                     curGarbArea.append([street, houses])
+                    houses = []
             elif ('дома' in subitem) or ('дом' in subitem):
                 houses.append(subitem)
             else:
@@ -193,11 +194,12 @@ for count, item in enumerate(retrievedAdressesLIST):
                 cur = 0
                 stop = False
                 fullStop = False
-                while stop == False:
-                    if garbAreaSearch in (adressesLIST[cur][0]):
-                        controller = adressesLIST[cur][1]
+                for ssubitem4 in adressesLIST:
+                    if garbAreaSearch in ssubitem4[0]:
+                        controller = ssubitem4[1]
                         if controller in curGarbageAreaList:
                             curDict = curGarbageAreaList[controller]
+                            break
                         else:
                             curDict = {}
                         if item4[0] in curDict:
