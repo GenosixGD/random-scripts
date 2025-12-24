@@ -22,6 +22,7 @@ adressRejectLIST = []
 adressRejectLIST2 = []
 rejectedPlacesLIST = []
 notFoundAdressesLIST = []
+idkwhathappened = []
 
 # Variables to work with Google Sheets API
 ## If modifying these scopes, delete the file token.json.
@@ -58,10 +59,11 @@ with open (controllersCSV) as controllersFILE:
     for row in csv.reader(controllersFILE, delimiter = '|', quotechar = '\''):
         controllersLIST.append(row)
 
-content = None
-contentXML = join(path, 'Generated/.extracted/content.xml')
-with open (contentXML) as contentFILE:
-    content = (contentFILE.readlines())[1]
+def contentOpen():
+    content = None
+    contentXML = join(path, 'Generated/.extracted/content.xml')
+    with open (contentXML) as contentFILE:
+        content = (contentFILE.readlines())[1]
         
 ## Получить таблицу претензий
 def googleSheetGet():
@@ -135,6 +137,7 @@ for count, item in enumerate(retrievedAdressesLIST):
     curGarbArea = []
     split = []
     strip = []
+    curGarbageAreaList = {}
     overstreet = None
     street = None
     prevstreet = None
@@ -180,20 +183,66 @@ for count, item in enumerate(retrievedAdressesLIST):
     
     if (item[1] == '') and (curGarbArea == []):
         corruptAdresses.append(item)
+        REJECT = True
+        continue
     else:
         if item[0] == 'Ульяновск':
             garbAdressSearch = (item[1] + ', д. ' + item[2])
         else:
             garbAdressSearch = (item[0] + ', ' + item[1] + ', д. ' + item[2])
         garbAdress = (item[1] + ', ' + item[2])
+        
+        for ssubitem4 in adressesLIST:
+            if garbAdressSearch in ssubitem4[0]:
+                controller = ssubitem4[1]
+                curDict = {}
+                curDictStreet = []
+                curDictStreet.append(item[1])
+                curDict.update({(item[0] + ', ' + item[1]): curDictStreet})
+                curGarbageAreaList.update({controller: curDict})
+                break
+            else:
+                cur = cur + 1
+                if cur == len(adressesLIST):
+                    REJECT = True
+                    notFoundAdressesLIST.append([item, ' | ', garbAdressSearch])
+                    break
+        if REJECT == True:
+            continue
+
+        
         garbArea = []
         garbAreaSearch = []
+
+
+        # Remove unneccessary entries from "curGarbArea"
+
+        for item2 in curGarbArea:
+            if item2[1] == []:
+                curGarbArea.remove(item2)
+        for item2 in curGarbArea:
+            if item2[1] == []:
+                curGarbArea.remove(item2)
+        for item2 in curGarbArea:
+            if item2[1] == []:
+                curGarbArea.remove(item2)
+        for item2 in curGarbArea:
+            if item2[1] == []:
+                curGarbArea.remove(item2)
+        for item2 in curGarbArea:
+            if item2[1] == []:
+                curGarbArea.remove(item2)
+        for item2 in curGarbArea:
+            if item2[1] == []:
+                print (item2)
+                curGarbArea.remove(item2)
+        if curGarbArea != []:
+            print (curGarbArea)
+
         for item4 in curGarbArea:
             for subitem4 in item4[1]:
                 garbAreaSearch = (item4[0] + ', д. ' + subitem4)
                 cur = 0
-                stop = False
-                fullStop = False
                 for ssubitem4 in adressesLIST:
                     if garbAreaSearch in ssubitem4[0]:
                         controller = ssubitem4[1]
@@ -208,13 +257,28 @@ for count, item in enumerate(retrievedAdressesLIST):
                             curDictStreet = []
                         curDictStreet.append(subitem4)
                         curDict.update({item4[0]: curDictStreet})
-                        curGarbageAreaList.update(curDict)
-                        stop = True
-                        fullStop = False
+                        curGarbageAreaList.update({controller: curDict})
+                        break
                     else:
                         cur = cur + 1
                         if cur == len(adressesLIST):
-                            stop = True
-                            notFoundAdressesLIST.append([item4, garbAreaSearch])
-                            fullStop = True
-        
+                            REJECT = True
+                            notFoundAdressesLIST.append([item4, ' | ', garbAreaSearch])
+                            break
+                    if REJECT == True:
+                        break
+                if REJECT == True:
+                    break
+            if REJECT == True:
+                break
+        if REJECT == False:
+            if curGarbageAreaList == {}:
+                idkwhathappened.append(item)
+                REJECT = True
+            else:
+                #print (curGarbageAreaList)
+                pass
+    if REJECT == True:
+        continue
+    else:
+        pass

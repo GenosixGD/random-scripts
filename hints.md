@@ -4,6 +4,7 @@ notFoundAdressesLIST
 adressRejectLIST
 adressRejectLIST2
 corruptAdresses
+idkwhathappened
 
 
 
