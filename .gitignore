@@ -1,4 +1,7 @@
-.venv/
-workfiles/Начальные/
-__pycache__/
-Generated
+Autogen/.venv/
+Autogen/workfiles/Начальные/
+Autogen/__pycache__/
+Autogen/Generated
+Spotify external downloader/.venv
+Spotify external downloader/output
+Spotify external downloader/Spotify Account Data
