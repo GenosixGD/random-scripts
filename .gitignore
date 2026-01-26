@@ -1,7 +1,8 @@
-Autogen/.venv/
-Autogen/workfiles/Начальные/
-Autogen/__pycache__/
-Autogen/Generated
+AutoGen/.venv/
+AutoGen/workfiles/Начальные/
+AutoGen/__pycache__/
+AutoGen/Generated
+AutoGen/token.json
 Spotify external downloader/.venv
 Spotify external downloader/output
 Spotify external downloader/Spotify Account Data
