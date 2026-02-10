@@ -28,7 +28,7 @@ if work == 1:
         path = os.path.join(abspath, 'output/stamp 1-900/', stampg)
         print ("\n", st)
         http = ('https://storage.sekai.best/sekai-jp-assets/stamp/' + stamp + '/' + stampg)
-        if not(pathlib.Path(path).exists()):
+        if not (pathlib.Path(path).exists()):
             try:
                 wget.download(http, path)
             except:
